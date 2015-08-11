@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+    <div class = container>
+    <ul>
+        <h2>Movie Recommendation Database </h1>
+    </ul>
+    <div class = container>
+        <p class = "description">This website use small current dataset MovieLens, a movie recommendation service. 
+            It contains 100023 ratings across 8570 movies, which were created by 706 users between April 02, 1996 and March 30, 2015.</p>
+    </div>
+    <div class = container>
+        <p class = "description">All movies all taken from year 1902 to 2015. There are 19 genres for the movies. 47.4% of the movies are tagged with "Drama", 
+            while 34.0% are comedy movies. However, only 1.1% of movies in database are tagged with "Film-Noir".</p>
+    </div>
+    <div class = container>
+        <p class = "description">The movie recommendation service is based on user collaborative filtering. 
+            It calculates the nearest 100 users based on cosine similarity database raters and predicts the user preference. </p>
+    </div>
+    <br><br>
+    <a href="http://grouplens.org/datasets/movielens/">For more details about movielens, please visit the website  </a>
+    </div>
+    {% endblock %}

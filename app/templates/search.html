@@ -1,0 +1,246 @@
+<!-- extend base layout -->
+
+{% extends "base.html" %}
+{% block head %}
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+
+  <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+  <link rel="stylesheet" href="/resources/demos/style.css">
+  <script>
+  $(function() {
+    $( "#slider-year" ).slider({
+      range: true,
+      min: 1900,
+      max: 2015,
+      values: [ 1900, 2015 ],
+      slide: function( event, ui ) {
+        $( "#amount" ).val(ui.values[ 0 ] + " - " + ui.values[ 1 ] );
+      }
+    });
+    $( "#amount" ).val($( "#slider-year" ).slider( "values", 0 ) +
+      " - " + $( "#slider-year" ).slider( "values", 1 ) );
+  });
+
+  $(function() {
+    $( "#slider-score" ).slider({
+      range: false,
+      min: 0,
+      max: 5,
+      step: 0.1,
+      values: [ 2.0 ],
+      slide: function( event, ui ) {
+        $( "#score" ).val( "" + ui.values[ 0 ]);
+      }
+    });
+    $( "#score" ).val( "" + $( "#slider-score" ).slider( "values", 0 ) );
+  });
+
+   $(function() {
+    $( "#slider-reviews" ).slider({
+      range: false,
+      min: 1,
+      max: 338,
+      values: [ 20 ],
+      slide: function( event, ui ) {
+        $( "#reviews" ).val( "" + ui.values[ 0 ]);
+      }
+    });
+    $( "#reviews" ).val( "" + $( "#slider-reviews" ).slider( "values", 0 ) );
+  });
+  </script>
+
+
+{% endblock %}
+
+{% block content %}
+ <form action= "{{url_for('search_movie')}}" method = 'POST'>
+
+<div class="container">
+
+  <h2 style="margin-bottom: 25px;">Select Movie Styles</h2>
+  <div class="container" id = "genres">
+    
+      <div class="row">
+        <div class = "col-1-w" align = "center">
+          <label class="btn btn-default">
+            <input type="checkbox" name = "checkboxArray[]" value="Drama">  Drama </button>
+          </label>
+        </div>
+        <div class = "col-1-w" align = "center">
+          <label class="btn btn-default">
+            <input type="checkbox" name = "checkboxArray[]" value="Comedy">  Comedy </button>
+          </label>
+        </div>
+        <div class = "col-1-w" align = "center">
+          <label class="btn btn-default">
+            <input type="checkbox" name = "checkboxArray[]" value="Thriller">  Thriller </button>
+          </label>
+        </div>
+        <div class = "col-1-w" align = "center">
+          <label class="btn btn-default">
+            <input type="checkbox" name = "checkboxArray[]" value="Action">  Action </button>
+          </label>
+        </div>
+        <div class = "col-1-w" align = "center">
+          <label class="btn btn-default">
+            <input type="checkbox" name = "checkboxArray[]" value="Romance">  Romance </button>
+          </label>
+        </div>
+        <div class = "col-1-w" align = "center">
+          <label class="btn btn-default">
+            <input type="checkbox" name = "checkboxArray[]" value="Crime">  Crime </button>
+          </label>
+        </div>
+        <div class = "col-1-w" align = "center">
+          <label class="btn btn-default">
+            <input type="checkbox" name = "checkboxArray[]" value="Adventure">  Adventure </button>
+            </label>
+        </div>
+        <div class = "col-1-w" align = "center">
+          <label class="btn btn-default">
+            <input type="checkbox" name = "checkboxArray[]" value="Horror">  Horror </button>
+          </label>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class = "col-1-w" align = "center">
+          <label class="btn btn-default">
+            <input type="checkbox" name = "checkboxArray[]" value="Sci-Fi">  Sci-Fi </button>
+          </label>
+        </div>
+        <div class = "col-1-w" align = "center">
+          <label class="btn btn-default">
+            <input type="checkbox" name = "checkboxArray[]" value="Fantasy">  Fantasy </button>
+          </label>
+        </div>
+        <div class = "col-1-w" align = "center">
+          <label class="btn btn-default">
+            <input type="checkbox" name = "checkboxArray[]" value="Mystery">  Mystery </button>
+          </label>
+        </div>
+        <div class = "col-1-w" align = "center">
+          <label class="btn btn-default">
+            <input type="checkbox" name = "checkboxArray[]" value="Children">  Children </button>
+          </label>
+        </div>
+        <div class = "col-1-w" align = "center">
+          <label class="btn btn-default">
+            <input type="checkbox" name = "checkboxArray[]" value="War"> War </button>
+          </label>
+        </div>
+        <div class = "col-1-w" align = "center">
+          <label class="btn btn-default">
+            <input type="checkbox" name = "checkboxArray[]" value="Documentary">  Documentary </button>
+          </label>
+        </div>
+        <div class = "col-1-w" align = "center">
+          <label class="btn btn-default">
+            <input type="checkbox" name = "checkboxArray[]" value="Animation">  Animation </button>
+          </label>
+        </div>
+        <div class = "col-1-w" align = "center">
+          <label class="btn btn-default">
+            <input type="checkbox" name = "checkboxArray[]" value="Musical">  Musical </button>
+          </label>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class = "col-1-w" align = "center">
+          <label class="btn btn-default">
+            <input type="checkbox" name = "checkboxArray[]" value="Western">  Western </button>
+          </label>
+        </div>
+        <div class = "col-1-w" align = "center">
+          <label class="btn btn-default">
+            <input type="checkbox" name = "checkboxArray[]" value="IMAX">  IMAX </button>
+          </label>
+        </div>
+        <div class = "col-1-w" align = "center">
+          <label class="btn btn-default">
+            <input type="checkbox" name = "checkboxArray[]" value="Film-Noir">  Film-Noir </button>
+          </label>
+        </div>
+      </div>
+
+  </div> 
+<br><br><br>
+</div>
+<div class="container" style = "display:flex">
+<div class = "col-4">
+  <p>
+    <label for="amount">Production Year: </label>
+    <input type="text" id="amount" name = "year" readonly style="border:0; color:#4A89DC; font-size: 18px; font-weight:bold;">
+  </p>
+</div>
+  <div id="slider-year" class = "col-8 slide"></div>
+</div>
+<br><br><br>
+
+<div class="container" style = "display:flex">
+<div class = "col-4">
+  <p>
+    <label for="score">Average score: </label>
+    <input type="text" id="score" name = "score" readonly style="border:0; color:#4A89DC; font-size: 18px; font-weight:bold;">
+  </p>
+</div>
+  <div id="slider-score" class = "col-8 slide"></div>
+</div>
+
+<br><br><br>
+
+<div class="container" style = "display:flex">
+<div class = "col-4">
+  <p>
+    <label for="reviews">Review number(>=): </label>
+    <input type="text" id="reviews" name = "reviews" readonly style="border:0; color:#4A89DC; font-size: 18px; font-weight:bold;">
+  </p>
+</div>
+  <div id="slider-reviews" class = "col-8 slide"></div>
+</div>
+
+<br><br><br>
+<div class = "container" align = "center">
+      
+      <input id = "search_movie" type='submit' class="btn btn-info btn-large" name='Check', value = "Check by genres" style = "align: center">
+   
+</div>
+</form>
+<br><br><br>
+<div class = "container table-reponsive" align = "center">
+    <table class ="table table-striped">
+    {% if data != [] %}
+      
+      <caption><font size = 4 color = "#2377d7">Found {{num}} movies for: {% for g in genres %} {{g}} {% endfor %}</caption>
+      <tbody>
+        <tr bgcolor="#346795">
+            <th style="padding: 10px"><font color = "#222277">ID</th>
+            <th style="padding: 10px"><font color = "#222277">Title</th>
+            <th style="padding: 10px"><font color = "#222277">Year</th>
+            <th style="padding: 10px"><font color = "#222277">Average Rating</th>
+            <th style="padding: 10px"><font color = "#222277">Reviews</th>
+        </tr>
+      {% for movie in data %}
+        <tr font-weight: bold class = 'clickable-row' data-href="{{ url_for('movie', movie_id = movie[0])}}">
+            <td style="padding: 10px"><font color = "#222277">{{movie[0]}}</td>
+            <td style="padding: 10px"><font color = "#222277">{{movie[1]}}</td>
+            <td style="padding: 10px"><font color = "#222277">{{movie[2]}}</td>
+            <td style="padding: 10px"><font color = "#222277">{{movie[3]}}</td>
+            <td style="padding: 10px"><font color = "#222277">{{movie[4]}}</td>
+        </tr>  
+      {% endfor %}
+      </tbody>
+    {% endif %}
+    </table>
+  <br><br><br>
+  </div>
+  <script>
+  jQuery(document).ready(function($) {
+    $(".clickable-row").click(function() {
+        window.document.location = $(this).data("href");
+      });
+  });
+  </script>
+{% endblock %}

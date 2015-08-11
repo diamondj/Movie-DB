@@ -1,0 +1,87 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+{% block head %}
+{% endblock %}
+{% block content %}
+
+<div class="row" style = "display:flex" align = "center">
+	<form action="{{url_for('recommend')}}" method = 'POST'>
+	<div class = "col-6">
+		<div class ="highlight"> Rate 10 movies to get recommendations </div>
+		<br><br>
+		<div class ="h3">Please enter movie name</div>
+	    <input type = 'text' size="30" name = 'movie_name' id = "movie_name">
+	    <div id="container">
+	    <div class ="h3">Please rate your score from 1-5 (by 0.5 point)</div>
+	    <input type = "number" size="30" max = "5" min = "1", step = "0.5" name = "score" id ="score">
+	</div>
+	<br><br>
+	<div >
+		<input type = "submit"  class="btn btn-info btn-lg" name = "submit" value="Add movie"> </div>
+	</form>
+ 
+</div>
+
+
+<div class="col-6">
+	<form action="{{url_for('recommend')}}" method = 'POST' >
+	<input type = "submit" name = "submit" value="Recommend!" class="btn btn-primary btn-lg"></input>
+	</form>
+<div>
+
+
+
+<div class = "col-6">
+	<div class = "container table-reponsive" align = "center">
+    <table class ="table table-striped">
+    
+      
+      <caption><font size = 4 color = "#2377d7">Rated movies: </caption>
+      <tbody>
+        <tr bgcolor="#346795">
+            <th style="padding: 10px"><font color = "#222277">ID</th>
+            <th style="padding: 10px"><font color = "#222277">Title</th>
+            <th style="padding: 10px"><font color = "#222277">Year</th>
+            <th style="padding: 10px"><font color = "#222277">User Rating</th>
+        </tr>
+      {% for rating in ratings %}
+        <tr font-weight: bold >
+            <td style="padding: 10px"><font color = "#222277">{{rating[0]}}</td>
+            <td style="padding: 10px"><font color = "#222277">{{rating[1]}}</td>
+            <td style="padding: 10px"><font color = "#222277">{{rating[2]}}</td>
+            <td style="padding: 10px"><font color = "#222277">{{rating[3]}}</td>
+        </tr>  
+      {% endfor %}
+      </tbody>
+
+    </table>
+  <br><br><br>
+  </div>
+
+
+
+<script>
+$(function() {
+    $.ajax({
+        url: '{{ url_for("autocomplete") }}'
+        }).done(function (data) {
+            $('#movie_name').autocomplete({
+                source: function(request, response) {
+				        var results = $.ui.autocomplete.filter(data.json_list, request.term);
+				        response(results.slice(0, 8));
+				    }, 
+                minLength: 2,
+                appendTo: "#container"
+            });
+	            $.ui.autocomplete.filter = function (array, term) {
+				  var matcher = new RegExp("^" + $.ui.autocomplete.escapeRegex(term), "i");
+				  return $.grep(array, function (value) {
+				    return matcher.test(value.label || value.value || value);
+				  });
+				};
+        });
+    });
+</script>
+
+
+{% endblock %}

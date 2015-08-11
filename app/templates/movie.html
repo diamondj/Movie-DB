@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+     <div class = "container" align = "center">
+    <ul>
+        <h1>Searched Movie:  <strong>{{movie[0][2]}}</strong></h1>
+    </ul>
+    <br><br>
+    </div>
+    <div class = "container" style="display:flex">
+        <div class = "col-2">
+        </div>
+        <div class = "col-4">
+
+            <div class = "tile2">
+                <font color = "#2A54A9">
+                Year: <font color = "#E9573F">{{movie[0][3]}} </font><br>
+                Average score: {{'%0.2f' % movie[0][6]}}<br>
+                Review number: {{movie[0][7]}}  
+                </font>     
+            </div>
+
+            <br><br>
+            <div class = "tile2">
+
+
+
+                <a href="http://www.imdb.com/title/tt0", onclick="location.href = 'http://www.imdb.com/title/tt0'+{{movie[0][4]}}; return false;">
+                    IMDB link</a>
+                <br>
+                <a href="https://www.themoviedb.org/movie/", onclick="location.href = 'https://www.themoviedb.org/movie/'+{{movie[0][5]}}; return false;">
+                MovieDB link </a>
+            </div>
+        </div>
+
+            <div class = "container">                
+                    <img src="{{movie[0][8]}}" width="400px", height="600px">
+            </div>
+
+    </div>
+    
+    <br><br><br>
+    <div class = "container" style="display:flex">
+        <div class = "tile2">
+        <p></p>
+        </div> 
+        <div class = "container description" align = "center"><h4> Click to get more information for top movies in the category</h4>
+            <div class = "container" style="display:flex" align = "left">
+                          
+                        {% for m in movie %}
+                        <a href="{{ url_for('style', style = m[0])}}" class="btn btn-info btn-lg" style="margin: 15px" role="button">
+                            {{m[0]}}</a>
+                            <br>
+                            
+                        {% endfor %}
+                        
+
+                    </div>
+            </div>
+         
+    </div>
+    
+
+
+    
+
+{% endblock %}

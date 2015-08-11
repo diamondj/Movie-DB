@@ -1,0 +1,81 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+
+{% block content %}
+
+
+<div class = "row" >
+	<div class = "col-1"></div>
+	<div class = "col-10">
+		<div class = "col-4" align = "center">
+			<ul class = "item">
+				<a class = "single_link" style="display:block" href = "{{ url_for('recommend')}}"> Recommend movies	</a>
+			</ul>
+		</div>
+		<div class = "col-4" align = "center">
+			<ul class = "item">
+				<a class = "single_link" style="display:block" href = "{{ url_for('search_movie')}}"> Search movies </a>
+			</ul>
+		</div>
+		<div class = "col-4" align = "center">
+			<ul class = "item">
+				<a class = "single_link" style="display:block" href = "#"> Browse database </a>
+			</ul>
+		</div>
+	</div>
+	<div class = "col-1"></div>
+</div>
+
+<div class = "container box">
+	<form action= "{{url_for('index')}}" method = 'POST'>
+		<p>Search movie by id or name:</p>
+		<input type = 'text' size='30' name = 'name' id = "movie_name">	
+		<input type='submit' class="btn btn-info" name='Check'><br>
+		<div id="container"></div>	
+	</form>
+</div>
+
+<div>
+	<p class = "highlight"> Highest Rated Movies in Database (>20 reviews) <br><br></p>
+</div>
+<div class = "container" style ="display:flex" >
+	<a class="col-4" href = "{{ url_for('movie', movie_id = movies[0][1])}}">
+	  <img src="{{movies[0][2]}}" width="220px", height="350px">
+	  <h5>{{movies[0][0]}}</h5>
+	</a>
+	<a class="col-4" href =  "{{ url_for('movie', movie_id = movies[1][1])}}">
+	  <img src="{{movies[1][2]}}" width="220px", height="350px">
+	  <h5>{{movies[1][0]}}</h5>
+	</a>
+	<a class="col-4" href =  "{{ url_for('movie', movie_id = movies[2][1])}}">
+	  <img src="{{movies[2][2]}}" width="220px", height="350px">
+	  <h5>{{movies[2][0]}}</h5>
+	</a>
+	<br><br>
+</div>
+
+
+<script>
+$(function() {
+    $.ajax({
+        url: '{{ url_for("autocomplete") }}'
+        }).done(function (data) {
+            $('#movie_name').autocomplete({
+                source: function(request, response) {
+				        var results = $.ui.autocomplete.filter(data.json_list, request.term);
+				        response(results.slice(0, 8));
+				    }, 
+                minLength: 2,
+                appendTo: "#container"
+            });
+	            $.ui.autocomplete.filter = function (array, term) {
+				  var matcher = new RegExp("^" + $.ui.autocomplete.escapeRegex(term), "i");
+				  return $.grep(array, function (value) {
+				    return matcher.test(value.label || value.value || value);
+				  });
+				};
+        });
+    });
+</script>
+{% endblock %}
