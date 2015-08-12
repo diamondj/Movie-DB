@@ -1,23 +1,30 @@
 from app import db, models
 
-movies = models.Movie.query.all()
+def main():
+	movies = models.Movie.query.all()
 
-for r in movies:
-    print r.id, r.year, r.title
-
-
-categories = models.Category.query.all()
-
-for r in categories:
-    print r.movie_id, r.category
+	for r in movies:
+	    print r.id, r.year, r.title
 
 
+	categories = models.Category.query.all()
 
-movies = models.Links.query.all()
-for r in movies:
-    print r.movie_id, r.imdb_link, r.moviedb_link
+	for r in categories:
+	    print r.movie_id, r.category
 
 
-categories = models.Rating.query.all()
-for r in categories:
-    print r.user_id, r.movie_id, r.score
+
+	movies = models.Links.query.all()
+
+	for r in movies:
+	    print r.movie_id, r.imdb_link, r.moviedb_link
+
+
+	categories = models.Rating.query.all()
+
+	for r in categories:
+	    print r.user_id, r.movie_id, r.score
+
+
+if __name__ == '__main__':
+    main()

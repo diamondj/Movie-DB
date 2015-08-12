@@ -45,7 +45,7 @@ def genreJSON(genre):
 							  q1.c.year.label('year'), 
 							  func.avg(Rating.score).label('ratings'), 
 							  func.count(Rating.score).label('reviews')).\
-							  join(Rating, Rating.movie_id == q1.c.id).
+							  join(Rating, Rating.movie_id == q1.c.id).\
 							  group_by(Rating.movie_id).all()
 	return jsonify(movies = movies)
 
@@ -71,7 +71,7 @@ def mainPage():
     return redirect(url_for('index'))
 
 # Hard-coding list for top 10 rated movies in dashboard
-top10_movies = [('Ghost Dog: The Way of the Samurai (1999)', 3328, 'https://upload.wikimedia.org/wikipedia/en/1/19/Ghost_Dog.jpg'),
+top10_movies = [('Ghost Dog: The Way of the Samurai (1999)', 3328, 'https://upload.wikimedia.org/wikipedia/en/a/a5/Ghost_Dog_film_poster.jpg'),
 				('Inception (2010)', 79132,  'https://upload.wikimedia.org/wikipedia/en/7/7f/Inception_ver3.jpg'),
 				('The Shawshank Redemption (1994)', 318, 'https://upload.wikimedia.org/wikipedia/en/8/81/ShawshankRedemptionMoviePoster.jpg'),
 				('Seven Samurai (1954)', 2019, 'https://upload.wikimedia.org/wikipedia/en/8/84/Seven_Samurai_movie_poster.jpg'),
@@ -233,6 +233,7 @@ def recommend():
                            movie_id = movie.id,
                            score = score,
                            time = datetime.now())
+					
 					db.session.add(rating)
 					db.session.commit()
 			ratings = db.session.query(Rating.movie_id, 
@@ -242,6 +243,13 @@ def recommend():
 									   filter_by(user_id = 0).\
 									   join(Movie, Movie.id == Rating.movie_id).all()
 			return render_template('recommend.html', ratings = ratings)
+		if request.form['submit'] == "Clear":
+			categories = models.Rating.query.filter_by(user_id = 0).all()
+			for r in categories:
+				db.session.delete(r)
+			db.session.commit()
+			return redirect(url_for('recommend', rec = []))
+
 
 		if request.form['submit'] == "Recommend!":
 			categories = models.Rating.query.filter_by(user_id = 0).all()

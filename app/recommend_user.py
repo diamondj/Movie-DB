@@ -18,7 +18,7 @@ def prepare(rating):
 	users = set()
 	ratings = []
 	i = 0
-	with open("./data/movies.csv") as csvfile:
+	with open("./app/data/movies.csv") as csvfile:
 	    reader = csv.reader(csvfile, delimiter=',')
 	    for data in reader:
 	    	i += 1
@@ -27,7 +27,7 @@ def prepare(rating):
 	    	movies[int(data[0])] = i-2
 
 	j = 0
-	with open("./data/ratings.csv") as csvfile2:
+	with open("./app/data/ratings.csv") as csvfile2:
 		reader = csv.reader(csvfile2, delimiter=',')
 		for data in reader:
 			j += 1
@@ -93,28 +93,25 @@ def predict(pref, matrix, urate, avg, N = 100):
 # N: number of nearest closest to be included 
 def compute(pref, matrix, urate, avg, N):
 	hgt = matrix.shape[0]
+	arr = [0 for i in range(hgt)]
+	user_rate = np.array([1 if pref[i] > 0 else 0 for i in range(pref.size)])
 
-    # arr stores the similarity with pre-stored users
-    arr = [0 for i in range(hgt)]
+	# rx is the normalized new-user rating (minus avg)
+	rx = (pref-np.mean(pref[np.nonzero(pref)]))*user_rate
+	for i in range(hgt):
+		# ry is the normalized pre-stored-user rating
+		ry = (matrix[i]-avg[i]*urate[i])
+		if user_rate.dot(urate[i]) >= 0.01:
+			if (rx.dot(rx))**0.5 > 1e-7:
+				sumrx = (rx.dot(rx))**0.5
+			else:
+				sumrx = 1e-7
+			sumry = (ry.dot(ry))**0.5
 
-    user_rate = np.array([1 if pref[i] > 0 else 0 for i in range(pref.size)])
-    
-    # rx is the normalized new-user rating (minus avg)
-    rx = (pref-np.mean(pref[np.nonzero(pref)]))*user_rate
-    for i in range(hgt):
-    	# ry is the normalized pre-stored-user rating
-        ry = (matrix[i]-avg[i]*urate[i])
-        if user_rate.dot(urate[i]) >= 0.01:
-            if (rx.dot(rx))**0.5 > 1e-7:
-                sumrx = (rx.dot(rx))**0.5
-            else:
-                sumrx = 1e-7
-            sumry = (ry.dot(ry))**0.5
-
-            # cosine similarity a bot b/(|a|*|b|)
-            arr[i] = rx.dot(ry)/(sumrx*sumry)
-    arr = np.array(arr)
-    return (arr.argsort()[::-1][:N], np.sort(arr)[::-1][:N])
+			# cosine similarity a bot b/(|a|*|b|)
+			arr[i] = rx.dot(ry)/(sumrx*sumry)
+	arr = np.array(arr)
+	return (arr.argsort()[::-1][:N], np.sort(arr)[::-1][:N])
 
 
 

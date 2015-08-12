@@ -1,12 +1,23 @@
-<!-- extend base layout -->
+<html>
+  <head>
+    <meta charset="utf-8">
 
-{% extends "base.html" %}
-{% block head %}
-  <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}" media="screen">
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Open+Sans" />
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 
-  <script src="//code.jquery.com/jquery-1.10.2.js"></script>
-  <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-  <link rel="stylesheet" href="/resources/demos/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+
+  <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+  <style>
+    #slider-year .ui-slider-range { background: #efb9b9; }
+    #slider-year .ui-slider-handle { background: #ed7785; }
+    #slider-score .ui-slider-handle { background: #8897f9; }
+    #slider-reviews .ui-slider-handle { background: #62b475; }
+  </style>
   <script>
   $(function() {
     $( "#slider-year" ).slider({
@@ -51,9 +62,38 @@
   </script>
 
 
-{% endblock %}
+</head>
 
-{% block content %}
+<body>
+      <font  face = "open sans">
+      <div id="welcome" style="padding-left:15px; padding-bottom: 4px">  Welcome, guest!  </div>
+      <div id = "header">
+          <ul class = "nav_bar">
+              
+              <li class = "nav_item"><a class = "nav_link" href="{{ url_for('index')}}">Home</a></li>
+              <li class = "nav_item"><a class = "nav_link" href="{{ url_for('api')}}">API</a></li>
+              <li class = "nav_item"><a class = "nav_link" href="{{ url_for('details')}}">Overview</a></li>
+
+        </ul>
+    </div>
+    <div style="padding-left:15px">
+        <script>
+            document.write('<a href="' + document.referrer + '"> Back</a>');
+        </script>
+    </div>
+    <div class = 'flash'>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}  
+                <ul>
+                {% for message in messages %}
+                    <li> {{ message }} </li>
+                {% endfor %}
+                </ul>
+                {% endif %}
+        {% endwith %}
+    </div>
+    {% block content %}{% endblock %}
+    </font>
  <form action= "{{url_for('search_movie')}}" method = 'POST'>
 
 <div class="container">
@@ -243,4 +283,4 @@
       });
   });
   </script>
-{% endblock %}
+</body>
