@@ -1,0 +1,50 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class = "container table-reponsive" align = "center">
+    <table class ="table table-striped">
+    {% if movies != [] %}
+      
+      <caption><font size = 4 color = "#2377d7">Movie database by <b> {{style}}</b>: page <b>{{page}}<b><font></caption>
+      <tbody>
+        <tr bgcolor="#346795">
+            <th style="padding: 10px" ><a href = "{{ url_for('browse', style = "id", p = page)}}"><font color = "#222277">ID</font></a></th>
+            <th style="padding: 10px"><a href = "{{ url_for('browse', style = "title", p = page)}}"><font color = "#222277">Title</font></a></th>
+            <th style="padding: 10px"><a href = "{{ url_for('browse', style = "year", p = page)}}"><font color = "#222277">Year</font></a></th>
+            <th style="padding: 10px"><a href = "{{ url_for('browse', style = "score", p = page)}}"><font color = "#222277">Average Rating</font></a></th>
+            <th style="padding: 10px"><a href = "{{ url_for('browse', style = "review", p = page)}}"><font color = "#222277">Reviews</font></a></th>
+        </tr>
+      {% for movie in movies %}
+        <tr font-weight: bold class = 'clickable-row' data-href="{{ url_for('movie', movie_id = movie[0])}}">
+            <td style="padding: 10px"><font color = "#222277">{{movie[0]}}</td>
+            <td style="padding: 10px"><font color = "#222277">{{movie[1]}}</td>
+            <td style="padding: 10px"><font color = "#222277">{{movie[2]}}</td>
+            <td style="padding: 10px"><font color = "#222277">{{movie[3]}}</td>
+            <td style="padding: 10px"><font color = "#222277">{{movie[4]}}</td>
+        </tr>  
+      {% endfor %}
+      </tbody>
+    {% endif %}
+    </table>
+  <br>
+  </div>
+  <div class = "container" >
+    <a  style = "padding: 10px 10px" href="{{ url_for('browse', style = style, p = page+1)}}">Next page</a>
+    {% if page > 1 %}
+      <a style = "padding: 10px 10px" href="{{ url_for('browse', style = style, p = page-1)}}">Prev page</a> 
+      <a style = "padding: 10px 10px" href="{{ url_for('browse', style = style, p = 1)}}">First page</a>
+    {% endif %}
+  </div>
+  <br><br>
+  <script>
+  jQuery(document).ready(function($) {
+    $(".clickable-row").click(function() {
+        window.document.location = $(this).data("href");
+      });
+  });
+  </script>
+
+
+
+{% endblock %}

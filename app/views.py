@@ -211,6 +211,29 @@ def style(style):
 	movies = db.session.query(Movie.title, Movie.year, q1.c.score, q1.c.reviews, Movie.id).join(q1, q1.c.id == Movie.id).all()
 	return render_template('style.html', movies = movies, style = style)
 
+@app.route('/browse/<style>/<p>', methods=['GET', 'POST'])
+def browse(style, p):
+	offset = 20*(int(p)-1)
+	if style == 'id':
+		order = Movie.id
+	elif style == 'title':
+		order = Movie.title
+	elif style == 'year':
+		order = Movie.year.desc()
+	elif style == 'score':
+		order = func.avg(Rating.score).desc()
+	else:
+		order = func.count(Rating.score).desc()
+	movies = db.session.query(Movie.id, 
+			  				  Movie.title, 
+			  				  Movie.year, 
+			  				  func.avg(Rating.score), 
+			  				  func.count(Rating.score)).\
+			 				  join(Rating, Rating.movie_id == Movie.id).\
+			 				  group_by(Rating.movie_id).\
+			 				  order_by(order).offset(offset).limit(20).all()
+	return render_template('browse.html', style = style, page = int(p), movies = movies)
+
 # Recommendation module
 @app.route('/recommend', methods = ['GET', 'POST'])
 def recommend():
