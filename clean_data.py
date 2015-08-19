@@ -42,6 +42,10 @@ def main():
         i += 1
     db.session.commit()
 
-
+    users = models.User.query.all()
+    for u in users:
+        db.session.delete(u)
+    db.session.commit()
+    
 if __name__ == '__main__':
     main.run()

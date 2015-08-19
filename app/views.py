@@ -1,10 +1,12 @@
-from flask import render_template, flash, redirect, session, url_for, request, jsonify
+from flask import render_template, flash, redirect, session, url_for, request, jsonify, g, abort
+from flask.ext.login import login_user, logout_user, current_user, login_required
 from flask_bootstrap import Bootstrap
 from datetime import datetime
-from app import app, db, models
-from .models import Movie, Rating, Category, Links
+from app import app, db, models, lm
+from .models import Movie, Rating, Category, Links, User
 from sqlalchemy import desc, func, and_, or_
 from sqlalchemy.orm import load_only
+from forms import RegistrationForm, LoginForm
 import string
 import recommend_user as rec
 import numpy as np
@@ -14,6 +16,16 @@ import random
 # helper function
 def preprocess(s):
     return unicode(s, errors='ignore').strip()
+
+
+@lm.user_loader
+def load_user(id):
+    return User.query.get(int(id))
+
+@app.before_request
+def before_request():
+    g.user = current_user
+
 
 # API endpoint
 # Return JSON 
@@ -51,6 +63,7 @@ def genreJSON(genre):
 
 # API intro and search page
 @app.route('/movie/api', methods=['GET', 'POST'])
+@login_required
 def api():
 	if request.method == "POST":
 		if request.form['Check'] == 'Check by id':
@@ -63,7 +76,48 @@ def api():
 				flash('No movie found')
 			else:
 				redirect(url_for('movieJSON', movie_id = movie.id))
-	return render_template('api.html')
+	return render_template('api.html', user = g.user)
+
+# register
+@app.route('/register' , methods=['GET','POST'])
+def register():
+	form = RegistrationForm(request.form)
+	if request.method == 'POST' and form.validate():
+		preusers = db.session.query(User.username).filter_by(username = form.username.data).all()
+		if len(preusers) > 0:
+			flash('Name already registered!')
+			return render_template('register.html', form=form)
+		user = models.User(username = form.username.data, email = form.email.data, password = form.password.data)
+		db.session.add(user)
+		db.session.commit()
+		flash('Thanks for registering')
+		return redirect(url_for('index'))
+	return render_template('register.html', form=form, user = g.user)
+
+# Login page
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+	if g.user is not None and g.user.is_authenticated():
+		return redirect(url_for('index'))
+	form = LoginForm(request.form)
+	if request.method == 'POST' and form.validate():
+		username = form.username.data
+		password = form.password.data
+		user = db.session.query(User).filter_by(username = username).filter_by(password = password).first()
+		if user != None:
+			flash('Logged in successfully.')
+			next = request.args.get('next')
+			if next:
+				return abort(400)
+			login_user(user, remember = True)
+			return redirect(url_for('index'))	    	
+	return render_template('login.html', form = form, user = g.user)
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    flash('Logged out successfully.')
+    return redirect(url_for('index'))
 
 # Will redirect to /index
 @app.route('/')
@@ -86,7 +140,8 @@ top10_movies = [('Ghost Dog: The Way of the Samurai (1999)', 3328, 'https://uplo
 # Provide link to recommendation, query by id(not usually used), query by name, and query by genre
 @app.route('/index', methods=['GET', 'POST'])
 def index():
-    if request.method == "POST":
+	user = g.user
+	if request.method == "POST":
     	# Search by name
 		movie_id = request.form['name']
 		if movie_id.isdigit():
@@ -104,8 +159,7 @@ def index():
 				flash('Movie not found')
 			else:
 				return redirect(url_for('movie', movie_id = movie.id))
-
-    return render_template('index.html', movies = random.sample(top10_movies, 3))
+	return render_template('index.html', movies = random.sample(top10_movies, 3), user = user)
 
 # Info page for the movie db
 @app.route('/details', methods = ['GET'])
@@ -147,7 +201,7 @@ def movie(movie_id):
 							 q2.c.link).\
 							 join(q2, q2.c.id==Category.movie_id).all()
 
-	return render_template('movie.html', id = movie_id, movie=movie)
+	return render_template('movie.html', id = movie_id, movie=movie, user = g.user)
 
 # Search page
 # User need to constrain which genre (at least one), movie year and review score/number
@@ -184,8 +238,8 @@ def search_movie():
 		
 		if movies == []:
 			flash('No Movie found!')
-		return render_template('search.html', data = movies, genres = genres, num = len(movies))
-	return render_template('search.html', data = movies, genres = [], num = 0)
+		return render_template('search.html', data = movies, genres = genres, num = len(movies), user = g.user)
+	return render_template('search.html', data = movies, genres = [], num = 0, user = g.user)
 
 # Ranking by style
 @app.route('/style/<style>', methods = ['GET'])
@@ -209,7 +263,7 @@ def style(style):
 						  order_by(func.avg(Rating.score).desc()).limit(20).subquery()
 
 	movies = db.session.query(Movie.title, Movie.year, q1.c.score, q1.c.reviews, Movie.id).join(q1, q1.c.id == Movie.id).all()
-	return render_template('style.html', movies = movies, style = style)
+	return render_template('style.html', movies = movies, style = style, user = g.user)
 
 @app.route('/browse/<style>/<p>', methods=['GET', 'POST'])
 def browse(style, p):
@@ -232,10 +286,11 @@ def browse(style, p):
 			 				  join(Rating, Rating.movie_id == Movie.id).\
 			 				  group_by(Rating.movie_id).\
 			 				  order_by(order).offset(offset).limit(20).all()
-	return render_template('browse.html', style = style, page = int(p), movies = movies)
+	return render_template('browse.html', style = style, page = int(p), movies = movies, user = g.user)
 
 # Recommendation module
 @app.route('/recommend', methods = ['GET', 'POST'])
+@login_required
 def recommend():
 	if request.method == "POST":
 		# Method for add movie
@@ -281,7 +336,7 @@ def recommend():
 			if (len(categories) < 3):
 				flash('Too less reviews!')
 				ratings = db.session.query(Rating.movie_id, Movie.title, Rating.score).filter_by(user_id = 0).join(Movie, Movie.id == Rating.movie_id).all()
-				return render_template('recommend.html', ratings = ratings)
+				return render_template('recommend.html', ratings = ratings, user = g.user)
 
 			# use rec module to get recommendation
 			matrix, urate, avg, dics = rec.prepare(rec.rating)
@@ -302,7 +357,7 @@ def recommend():
 							   filter_by(user_id = 0).\
 							   join(Movie, Movie.id == Rating.movie_id).all()
 
-	return render_template('recommend.html', ratings = ratings)
+	return render_template('recommend.html', ratings = ratings, user = g.user)
 
 # Recommendation result page
 # List in table 
@@ -320,7 +375,7 @@ def recommend_result(rec):
 			 				  join(Rating, Rating.movie_id == Movie.id).\
 			 				  group_by(Rating.movie_id).all()
 
-	return render_template('rec_result.html',  movies = movies)
+	return render_template('rec_result.html',  movies = movies, user = g.user)
 
 # Autocompelete module by preloading
 @app.route('/autocomplete',methods=['GET'])

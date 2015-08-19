@@ -75,6 +75,37 @@ class Links(db.Model):
            'moviedb_link'       : self.moviedb_link,
        }
 
+class User(db.Model):
+    __tablename__ = 'user'
+    _id = db.Column(db.Integer, primary_key = True)
+    username = db.Column(db.String(128), nullable=False, index=True, unique=True)
+    password = db.Column(db.String(128), nullable=False)
+    email = db.Column(db.String(128))
+
+    def is_authenticated(self):
+        return True
+ 
+    def is_active(self):
+        return True
+ 
+    def is_anonymous(self):
+        return False
+ 
+    def get_id(self):
+        return unicode(self._id)
+ 
+    def __repr__(self):
+        return '<User %r>' % (self.nickname)
+    @property
+    def serialize(self):  
+       return {
+           'id'         : self._id,
+           'nickname'         : self.username,
+           'email'       : self.email,
+       }
+
+
+
 
 if __name__ == '__main__':
     manager.run()

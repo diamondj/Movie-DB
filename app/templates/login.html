@@ -1,0 +1,33 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+
+{% block content %}
+
+<div class = "container" align = "center">
+  <div class = "row" align = "right">
+          
+            <a href="{{ url_for('register') }}"><h4>Register</h4></a>
+  </div>
+    {% macro render_field(field) %}
+      <dt>{{ field.label }}
+      <dd>{{ field(**kwargs)|safe }}
+      {% if field.errors %}
+        <ul class=errors>
+        {% for error in field.errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+      </dd>
+    {% endmacro %}
+    <form method=post action="/login">
+      <dl>
+        {{ render_field(form.username) }}
+        {{ render_field(form.password) }}
+      </dl>
+      <p><input type=submit value=Login>
+    </form>
+  </div>
+
+{% endblock %}
