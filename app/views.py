@@ -110,10 +110,14 @@ def login():
 			if next:
 				return abort(400)
 			login_user(user, remember = True)
-			return redirect(url_for('index'))	    	
+			return redirect(url_for('index'))
+		else:
+			flash("Wrong username or password!")	    	
 	return render_template('login.html', form = form, user = g.user)
 
+# Logout page
 @app.route('/logout')
+@login_required
 def logout():
     logout_user()
     flash('Logged out successfully.')
@@ -292,6 +296,9 @@ def browse(style, p):
 @app.route('/recommend', methods = ['GET', 'POST'])
 @login_required
 def recommend():
+	user = g.user
+
+	cid = user._id+1000
 	if request.method == "POST":
 		# Method for add movie
 		# Every time insert movie into sql if haven't recommended before
@@ -303,40 +310,33 @@ def recommend():
 			if movie == None:
 				flash('Movie not found!')
 			else:	
-				checks = db.session.query(Rating).filter_by(user_id = 0).filter(Rating.movie_id == movie.id).all()
+				checks = db.session.query(Rating).filter_by(user_id = cid).filter(Rating.movie_id == movie.id).all()
 				if (len(checks) > 0):
 					flash('Duplicate rating!')
 				else:
-					rating = models.Rating(user_id = 0,
+					rating = models.Rating(user_id = cid,
                            movie_id = movie.id,
                            score = score,
                            time = datetime.now())
 					
 					db.session.add(rating)
 					db.session.commit()
-			ratings = db.session.query(Rating.movie_id, 
-									   Movie.title, 
-									   Movie.year, 
-									   Rating.score).\
-									   filter_by(user_id = 0).\
-									   join(Movie, Movie.id == Rating.movie_id).all()
-			return render_template('recommend.html', ratings = ratings)
+			redirect(url_for('recommend'))
 		if request.form['submit'] == "Clear":
-			categories = models.Rating.query.filter_by(user_id = 0).all()
+			categories = models.Rating.query.filter_by(user_id = cid).all()
 			for r in categories:
 				db.session.delete(r)
 			db.session.commit()
-			return redirect(url_for('recommend', rec = []))
+			return redirect(url_for('recommend'))
 
 
 		if request.form['submit'] == "Recommend!":
-			categories = models.Rating.query.filter_by(user_id = 0).all()
+			categories = models.Rating.query.filter_by(user_id = cid).all()
 
 			# At least rate 3 movies to get user-based recommendation 
 			if (len(categories) < 3):
 				flash('Too less reviews!')
-				ratings = db.session.query(Rating.movie_id, Movie.title, Rating.score).filter_by(user_id = 0).join(Movie, Movie.id == Rating.movie_id).all()
-				return render_template('recommend.html', ratings = ratings, user = g.user)
+				return redirect(url_for('recommend'))
 
 			# use rec module to get recommendation
 			matrix, urate, avg, dics = rec.prepare(rec.rating)
@@ -345,16 +345,19 @@ def recommend():
 				cid = r.movie_id
 				new_user[dics[cid]] = r.score
 				#clean the record to be ready for another recommendation
-				db.session.delete(r)
-			db.session.commit()
+				'''Now we don't need to clean the database upon recommendation. The data will be
+					stored in db unless the user choose to delete.
+				'''
+				#db.session.delete(r)
+			#db.session.commit()
 			ans = rec.predict(new_user, matrix, urate, avg, N=100)
 			ids = [int(ans[i][1]) for i in range(len(ans))]
 			return redirect(url_for('recommend_result', rec = ids))
-	
 	ratings = db.session.query(Rating.movie_id, 
-							   Movie.title, 
+							   Movie.title,
+							   Movie.year, 
 							   Rating.score).\
-							   filter_by(user_id = 0).\
+							   filter_by(user_id = cid).\
 							   join(Movie, Movie.id == Rating.movie_id).all()
 
 	return render_template('recommend.html', ratings = ratings, user = g.user)
