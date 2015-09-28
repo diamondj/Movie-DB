@@ -5,7 +5,7 @@ from flask import jsonify
 class Movie(db.Model):
     __tablename__ = 'movie'
    
-    id = db.Column(db.Integer, primary_key=True, autoincrement=False)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=False, index = True)
     title = db.Column(db.String(128), nullable=False)
     year = db.Column(db.Integer)
     rating = db.relationship("Rating",  backref=db.backref('movie', uselist = True, lazy='dynamic'))
@@ -27,7 +27,7 @@ class Rating(db.Model):
     
     _id = db.Column(db.Integer, primary_key = True)
     user_id = db.Column(db.Integer)
-    movie_id = db.Column(db.Integer, db.ForeignKey('movie.id'))
+    movie_id = db.Column(db.Integer, db.ForeignKey('movie.id'), index = True)
     score = db.Column(db.Float(precision = 2), nullable = False)
     time = db.Column(db.DateTime)
     
@@ -50,7 +50,7 @@ class Category(db.Model):
     __tablename__ = 'category'
 
     _id = db.Column(db.Integer, primary_key = True)
-    movie_id = db.Column(db.Integer, db.ForeignKey('movie.id'))
+    movie_id = db.Column(db.Integer, db.ForeignKey('movie.id'), index = True)
     category = db.Column(db.String(128), nullable=False)  
     @property
     def serialize(self):  
@@ -63,7 +63,7 @@ class Category(db.Model):
 class Links(db.Model):
     __tablename__ = 'links'
     _id = db.Column(db.Integer, primary_key = True)
-    movie_id = db.Column(db.Integer, db.ForeignKey('movie.id'))
+    movie_id = db.Column(db.Integer, db.ForeignKey('movie.id'), index = True)
     imdb_link = db.Column(db.String(128))
     moviedb_link = db.Column(db.String(128))
     web_link =  db.Column(db.String(128))

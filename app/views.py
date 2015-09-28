@@ -168,7 +168,7 @@ def index():
 # Info page for the movie db
 @app.route('/details', methods = ['GET'])
 def details():
-    return render_template('explanation.html')
+    return render_template('explanation.html', user = g.user)
 
 #
 # Query use join based on 2 subqueies
